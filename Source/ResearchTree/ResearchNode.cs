@@ -78,6 +78,12 @@ public class ResearchNode : Node
         currentCacheOrder = Assets.TotalAmountOfResearch;
     }
 
+    public static void ClearStaticCaches()
+    {
+        _buildingPresentCache.Clear();
+        _missingFacilitiesCache.Clear();
+    }
+
     public static implicit operator ResearchNode(ResearchProjectDef def)
     {
         return def.ResearchNode();
@@ -97,7 +103,7 @@ public class ResearchNode : Node
             return value;
         }
 
-        if (currentCacheOrder < Assets.TotalAmountOfResearch && hasCache)
+        if (!Assets.RefreshResearch && currentCacheOrder < Assets.TotalAmountOfResearch && hasCache)
         {
             currentCacheOrder++;
             return value;
@@ -224,7 +230,7 @@ public class ResearchNode : Node
             return availableCache;
         }
 
-        if (currentCacheOrder < Assets.TotalAmountOfResearch)
+        if (!Assets.RefreshResearch && currentCacheOrder < Assets.TotalAmountOfResearch)
         {
             currentCacheOrder++;
             return availableCache;
@@ -374,7 +380,7 @@ public class ResearchNode : Node
             return value;
         }
 
-        if (currentCacheOrder < Assets.TotalAmountOfResearch && hasCache)
+        if (!Assets.RefreshResearch && currentCacheOrder < Assets.TotalAmountOfResearch && hasCache)
         {
             currentCacheOrder++;
             return value;
@@ -434,6 +440,15 @@ public class ResearchNode : Node
         hasRefreshedBuildings = false;
         hasRefreshedFacilities = false;
         currentCacheOrder = cacheOrder;
+    }
+
+    public void ForceRefreshCaches()
+    {
+        ClearInstanceCaches();
+
+        availableCache = getCacheValue();
+        _ = missingFacilities(Research);
+        _ = buildingPresent(Research);
     }
 
     public override void Draw(Rect visibleRect, bool forceDetailedMode = false)

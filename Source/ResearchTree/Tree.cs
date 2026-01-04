@@ -1683,12 +1683,11 @@ public static class Tree
 
     public static void ResetNodeAvailabilityCache()
     {
-        foreach (var node in Nodes)
+        ResearchNode.ClearStaticCaches();
+
+        foreach (var node in Nodes.OfType<ResearchNode>())
         {
-            if (node is ResearchNode researchNode)
-            {
-                researchNode.ClearInstanceCaches();
-            }
+            node.ForceRefreshCaches();
         }
     }
 
