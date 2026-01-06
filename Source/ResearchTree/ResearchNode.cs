@@ -238,11 +238,16 @@ public class ResearchNode : Node
 
         hasRefreshedAvailability = true;
 
-        if (missingFacilities(Research).Any() || Assets.SemiRandomResearchLoaded && Assets.SemiResearchEnabled ||
-            Assets.UsingRimedieval && !Assets.RimedievalAllowedResearchDefs.Contains(Research) ||
-            !Research.TechprintRequirementMet || !Research.InspectionRequirementsMet ||
-            Research.requiredResearchBuilding != null && !Research.PlayerHasAnyAppropriateResearchBench ||
-            !Research.PlayerMechanitorRequirementMet || !Research.AnalyzedThingsRequirementsMet)
+        var canStart = DebugSettings.godMode || Research.CanStartNow;
+
+        if (!canStart && Research.PrerequisitesCompleted)
+        {
+            availableCache = false;
+            return availableCache;
+        }
+
+        if (Assets.SemiRandomResearchLoaded && Assets.SemiResearchEnabled ||
+            Assets.UsingRimedieval && !Assets.RimedievalAllowedResearchDefs.Contains(Research))
         {
             availableCache = false;
             return availableCache;
