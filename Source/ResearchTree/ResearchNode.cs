@@ -240,12 +240,6 @@ public class ResearchNode : Node
 
         var canStart = DebugSettings.godMode || Research.CanStartNow;
 
-        if (!canStart && Research.PrerequisitesCompleted)
-        {
-            availableCache = false;
-            return availableCache;
-        }
-
         if (Assets.SemiRandomResearchLoaded && Assets.SemiResearchEnabled ||
             Assets.UsingRimedieval && !Assets.RimedievalAllowedResearchDefs.Contains(Research))
         {
@@ -277,6 +271,12 @@ public class ResearchNode : Node
             return availableCache;
         }
 
+        if (canStart)
+        {
+            availableCache = true;
+            return availableCache;
+        }
+
         if (Research.prerequisites?.Any() != true && Research.hiddenPrerequisites?.Any() != true)
         {
             availableCache = true;
@@ -299,11 +299,6 @@ public class ResearchNode : Node
                     availableCache = false;
                     return availableCache;
                 }
-
-                if (prerequisiteNode.Available)
-                {
-                    continue;
-                }
             }
         }
 
@@ -322,11 +317,6 @@ public class ResearchNode : Node
                 {
                     availableCache = false;
                     return availableCache;
-                }
-
-                if (prerequisiteNode.Available)
-                {
-                    continue;
                 }
             }
         }
