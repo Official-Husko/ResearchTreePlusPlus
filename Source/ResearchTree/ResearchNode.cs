@@ -253,6 +253,12 @@ public class ResearchNode : Node
             return availableCache;
         }
 
+        if (!Research.TechprintRequirementMet || MissingFacilities()?.Any() == true)
+        {
+            availableCache = false;
+            return availableCache;
+        }
+
         object[] parameters = [Research, null];
         if (Assets.UsingVanillaVehiclesExpanded)
         {
