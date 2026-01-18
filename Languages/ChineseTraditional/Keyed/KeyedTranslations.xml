@@ -72,8 +72,8 @@
   <Fluffy.ResearchTree.RequestRebuild>重建研究樹</Fluffy.ResearchTree.RequestRebuild>
   <Fluffy.ResearchTree.AllTabsCache>選擇需要生成的研究標籤</Fluffy.ResearchTree.AllTabsCache>
   <Fluffy.ResearchTree.Building>生成中</Fluffy.ResearchTree.Building>
-  <Fluffy.ResearchTree.invisible>隱藏未完成項目</Fluffy.ResearchTree.invisible>
-  <Fluffy.ResearchTree.visible>顯示未完成項目</Fluffy.ResearchTree.visible>
+  <Fluffy.ResearchTree.invisible>隱藏已完成項目</Fluffy.ResearchTree.invisible>
+  <Fluffy.ResearchTree.visible>顯示已完成項目</Fluffy.ResearchTree.visible>
   <Fluffy.ResearchTree.filter>選擇研究標籤</Fluffy.ResearchTree.filter>
   <Fluffy.ResearchTree.selectAll>全選</Fluffy.ResearchTree.selectAll>
   <Fluffy.ResearchTree.selectNone>全不選</Fluffy.ResearchTree.selectNone>

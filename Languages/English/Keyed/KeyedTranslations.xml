@@ -76,8 +76,8 @@ Please use the load on first time opening if you experience this.</Fluffy.Resear
   <Fluffy.ResearchTree.RequestRebuild>Rebuild research tree</Fluffy.ResearchTree.RequestRebuild>
   <Fluffy.ResearchTree.AllTabsCache>Select research tags to generate</Fluffy.ResearchTree.AllTabsCache>
   <Fluffy.ResearchTree.Building>Generating</Fluffy.ResearchTree.Building>
-  <Fluffy.ResearchTree.invisible>Hide incomplete projects</Fluffy.ResearchTree.invisible>
-  <Fluffy.ResearchTree.visible>Show incomplete projects</Fluffy.ResearchTree.visible>
+  <Fluffy.ResearchTree.invisible>Hide complete projects</Fluffy.ResearchTree.invisible>
+  <Fluffy.ResearchTree.visible>Show complete projects</Fluffy.ResearchTree.visible>
   <Fluffy.ResearchTree.filter>Select research tags</Fluffy.ResearchTree.filter>
   <Fluffy.ResearchTree.selectAll>Select all</Fluffy.ResearchTree.selectAll>
   <Fluffy.ResearchTree.selectNone>Select none</Fluffy.ResearchTree.selectNone>
