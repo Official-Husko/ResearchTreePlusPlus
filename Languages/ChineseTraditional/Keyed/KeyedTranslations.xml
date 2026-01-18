@@ -40,6 +40,7 @@
   <Fluffy.ResearchTree.PreparingTree.LayoutNew>最終確定研究樹佈局</Fluffy.ResearchTree.PreparingTree.LayoutNew>
   <Fluffy.ResearchTree.VanillaGraphics>使用舊的圖形方法（如果閃爍）</Fluffy.ResearchTree.VanillaGraphics>
   <Fluffy.ResearchTree.ShowCompletion>研究完成後彈出完成對話框</Fluffy.ResearchTree.ShowCompletion>
+  <Fluffy.ResearchTree.ShowResearchLines>顯示研究連線</Fluffy.ResearchTree.ShowResearchLines>
   <Fluffy.ResearchTree.StillLoading>研究樹首次載入，可能需要一段時間</Fluffy.ResearchTree.StillLoading>
   <Fluffy.ResearchTree.GenerationInProgress>研究樹尚未生成完成，請稍候……</Fluffy.ResearchTree.GenerationInProgress>
   <Fluffy.ResearchTree.NoTabsSelected>目前未選擇任何研究項目</Fluffy.ResearchTree.NoTabsSelected>

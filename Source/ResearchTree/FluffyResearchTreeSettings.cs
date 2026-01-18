@@ -21,6 +21,7 @@ internal class FluffyResearchTreeSettings : ModSettings
     public bool NoIdeologyPopup;
     public bool OverrideResearch = true;
     public bool PauseOnOpen = true;
+    public bool ShowResearchLines = true;
 
     public bool ShowCompletion;
     public bool ReverseShift;
@@ -59,6 +60,7 @@ internal class FluffyResearchTreeSettings : ModSettings
     {
         base.ExposeData();
         Scribe_Values.Look(ref PauseOnOpen, "PauseOnOpen", true);
+        Scribe_Values.Look(ref ShowResearchLines, "ShowResearchLines", true);
         Scribe_Values.Look(ref CtrlFunction, "CtrlFunction", true);
         Scribe_Values.Look(ref OverrideResearch, "OverrideResearch", true);
         Scribe_Values.Look(ref ShowCompletion, "ShowCompletion");
@@ -83,6 +85,7 @@ internal class FluffyResearchTreeSettings : ModSettings
     public void Reset()
     {
         PauseOnOpen = true;
+        ShowResearchLines = true;
         CtrlFunction = true;
         OverrideResearch = true;
         ShowCompletion = false;

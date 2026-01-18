@@ -39,6 +39,7 @@
   <Fluffy.ResearchTree.PreparingTree.LayoutNew>연구 트리 배치 마무리</Fluffy.ResearchTree.PreparingTree.LayoutNew>
   <Fluffy.ResearchTree.VanillaGraphics>오래된 그래픽 방식을 사용 (깜빡임이 있을 때)</Fluffy.ResearchTree.VanillaGraphics>
   <Fluffy.ResearchTree.ShowCompletion>연구 완료 시 완료 메시지 표시</Fluffy.ResearchTree.ShowCompletion>
+  <Fluffy.ResearchTree.ShowResearchLines>연구 연결선 표시</Fluffy.ResearchTree.ShowResearchLines>
   <Fluffy.ResearchTree.StillLoading>연구 트리를 처음 불러오는 중입니다. 시간이 걸릴 수 있습니다.</Fluffy.ResearchTree.StillLoading>
   <Fluffy.ResearchTree.GenerationInProgress>연구 트리를 생성하는 중입니다. 잠시만 기다려 주세요…</Fluffy.ResearchTree.GenerationInProgress>
   <Fluffy.ResearchTree.UIScaleWarning>UI 배율이 1x보다 크면 백그라운드 로딩 옵션을 사용할 때 연구 레이블이 잘릴 수 있습니다.

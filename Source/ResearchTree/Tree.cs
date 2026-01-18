@@ -283,6 +283,15 @@ public static class Tree
                 return false;
             }
 
+            var settings = FluffyResearchTreeMod.instance?.Settings;
+            if (settings != null && !settings.ShowResearchLines)
+            {
+                if (!(Start.Highlighted || End.Highlighted))
+                {
+                    return false;
+                }
+            }
+
             if (!Start.IsVisible || !End.IsVisible)
             {
                 return false;

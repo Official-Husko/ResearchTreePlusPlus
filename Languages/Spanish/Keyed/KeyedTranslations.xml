@@ -28,6 +28,7 @@
   <Fluffy.ResearchTree.SemiRandomResearchLoaded>El modo investigación semi-aleatoria no permite elegir la investigación libremente</Fluffy.ResearchTree.SemiRandomResearchLoaded>
   <Fluffy.ResearchTree.None>ninguno</Fluffy.ResearchTree.None>
   <Fluffy.ResearchTree.ShowCompletion>Mostrar mensaje de finalización para la investigación terminada</Fluffy.ResearchTree.ShowCompletion>
+  <Fluffy.ResearchTree.ShowResearchLines>Mostrar líneas de conexión de investigación</Fluffy.ResearchTree.ShowResearchLines>
   <Fluffy.ResearchTree.StillLoading>El árbol se está cargando por primera vez, esto puede tardar un poco</Fluffy.ResearchTree.StillLoading>
   <Fluffy.ResearchTree.GenerationInProgress>La generación del árbol de investigación aún no ha finalizado, espera un momento…</Fluffy.ResearchTree.GenerationInProgress>
   <Fluffy.ResearchTree.CurrentModVersion>Versión instalada del mod: {0}</Fluffy.ResearchTree.CurrentModVersion>
