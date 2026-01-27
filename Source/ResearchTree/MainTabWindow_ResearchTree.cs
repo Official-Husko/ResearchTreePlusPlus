@@ -201,7 +201,6 @@ public class MainTabWindow_ResearchTree : MainTabWindow
             base.PreOpen();
 
             // 启用默认的吸收逻辑，确保地图不会在窗口上方被点击
-            absorbInputAroundWindow = true;
             closeOnClickedOutside = false;   // 避免 RimWorld 的“点外面就关”的默认行为
             preventCameraMotion = true;      // 避免地图摄像机因这个点击而响应
 
