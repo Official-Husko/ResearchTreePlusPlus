@@ -39,6 +39,7 @@
   <Fluffy.ResearchTree.ResetLabel>Reset all settings</Fluffy.ResearchTree.ResetLabel>
   <Fluffy.ResearchTree.BackgroundColor>Background color</Fluffy.ResearchTree.BackgroundColor>
   <Fluffy.ResearchTree.ShowCompletion>Show completion message for finished research</Fluffy.ResearchTree.ShowCompletion>
+  <Fluffy.ResearchTree.ShowResearchLines>Show research connection lines</Fluffy.ResearchTree.ShowResearchLines>
   <Fluffy.ResearchTree.StillLoading>Tree is loading for the first time, this can take a while</Fluffy.ResearchTree.StillLoading>
   <Fluffy.ResearchTree.GenerationInProgress>Research tree generation is still in progress, please wait…</Fluffy.ResearchTree.GenerationInProgress>
   <Fluffy.ResearchTree.NoTabsSelected>No research projects are available because no research tags are selected.</Fluffy.ResearchTree.NoTabsSelected>

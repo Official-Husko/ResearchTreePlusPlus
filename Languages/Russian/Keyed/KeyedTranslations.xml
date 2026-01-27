@@ -18,6 +18,7 @@
   <Fluffy.ResearchTree.LeadsTo>Ведет к</Fluffy.ResearchTree.LeadsTo>
   <Fluffy.ResearchTree.None>нет</Fluffy.ResearchTree.None>
   <Fluffy.ResearchTree.ShowCompletion>Показать сообщение о завершении исследования</Fluffy.ResearchTree.ShowCompletion>
+  <Fluffy.ResearchTree.ShowResearchLines>Показывать линии связей исследований</Fluffy.ResearchTree.ShowResearchLines>
   <Fluffy.ResearchTree.StillLoading>Древо исследований загружается в первый раз, это может занять некоторое время</Fluffy.ResearchTree.StillLoading>
   <Fluffy.ResearchTree.GenerationInProgress>Генерация древа исследований ещё не завершена, пожалуйста, подождите…</Fluffy.ResearchTree.GenerationInProgress>
   <Fluffy.ResearchTree.CurrentModVersion>Установленная версия мода: {0}</Fluffy.ResearchTree.CurrentModVersion>

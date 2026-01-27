@@ -40,6 +40,7 @@
   <Fluffy.ResearchTree.PreparingTree.LayoutNew>最终确定研究树布局</Fluffy.ResearchTree.PreparingTree.LayoutNew>
   <Fluffy.ResearchTree.VanillaGraphics>使用旧的图形方法（如果闪烁）</Fluffy.ResearchTree.VanillaGraphics>
   <Fluffy.ResearchTree.ShowCompletion>研究完成后弹出完成对话框</Fluffy.ResearchTree.ShowCompletion>
+  <Fluffy.ResearchTree.ShowResearchLines>显示研究连接线</Fluffy.ResearchTree.ShowResearchLines>
   <Fluffy.ResearchTree.StillLoading>研究树首次加载，可能需要一段时间</Fluffy.ResearchTree.StillLoading>
   <Fluffy.ResearchTree.GenerationInProgress>研究树未生成结束，请稍候……</Fluffy.ResearchTree.GenerationInProgress>
   <Fluffy.ResearchTree.NoTabsSelected>当前未选择任何研究项目</Fluffy.ResearchTree.NoTabsSelected>

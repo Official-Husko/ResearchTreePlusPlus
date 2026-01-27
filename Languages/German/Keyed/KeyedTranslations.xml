@@ -41,6 +41,7 @@
   <Fluffy.ResearchTree.PreparingTree.LayoutNew>Fertigstellung des Layouts des Forschungsbaums</Fluffy.ResearchTree.PreparingTree.LayoutNew>
   <Fluffy.ResearchTree.VanillaGraphics>Verwenden Sie die alten grafischen Methoden (bei Flackern)</Fluffy.ResearchTree.VanillaGraphics>
   <Fluffy.ResearchTree.ShowCompletion>Abschlussmeldung für beendete Recherchen anzeigen</Fluffy.ResearchTree.ShowCompletion>
+  <Fluffy.ResearchTree.ShowResearchLines>Verbindungslinien der Forschung anzeigen</Fluffy.ResearchTree.ShowResearchLines>
   <Fluffy.ResearchTree.StillLoading>Baum wird zum ersten Mal geladen, dies kann eine Weile dauern</Fluffy.ResearchTree.StillLoading>
   <Fluffy.ResearchTree.GenerationInProgress>Der Forschungsbaum wird noch erzeugt, bitte warten…</Fluffy.ResearchTree.GenerationInProgress>
   <Fluffy.ResearchTree.UIScaleWarning>Wenn Sie die UI-Skala größer als 1x verwenden, kann es vorkommen, dass die Forschungsbeschriftungen abgeschnitten werden, wenn Sie die Option zum Laden im Hintergrund verwenden.

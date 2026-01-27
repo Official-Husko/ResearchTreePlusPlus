@@ -103,6 +103,7 @@ internal class FluffyResearchTreeMod : Mod
         listing_Standard.CheckboxLabeled("Fluffy.ResearchTree.ReverseShift".Translate(), ref Settings.ReverseShift, "Fluffy.ResearchTree.ReverseShiftTT".Translate());
         listing_Standard.CheckboxLabeled("Fluffy.ResearchTree.PauseOnOpen".Translate(), ref Settings.PauseOnOpen);
         listing_Standard.CheckboxLabeled("Fluffy.ResearchTree.ShowCompletion".Translate(), ref Settings.ShowCompletion);
+        listing_Standard.CheckboxLabeled("Fluffy.ResearchTree.ShowResearchLines".Translate(), ref Settings.ShowResearchLines);
         if (ModsConfig.IdeologyActive)
         {
             listing_Standard.CheckboxLabeled("Fluffy.ResearchTree.NoIdeologyPopup".Translate(),
