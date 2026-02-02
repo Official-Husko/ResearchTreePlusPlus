@@ -29,8 +29,6 @@ public class MainTabWindow_ResearchTree : MainTabWindow
 
     private List<ResearchProjectDef> _cachedVisibleResearchProjects;
 
-    private bool _dragging;
-
     private bool _logFirstDrawNextFrame;
 
     private Vector2 _mousePosition = Vector2.zero;
@@ -207,9 +205,13 @@ public class MainTabWindow_ResearchTree : MainTabWindow
             setRects();
             Tree.WaitForInitialization();
             Assets.RefreshResearch = true;
-            _dragging = false;
             closeOnClickedOutside = false;
+
+            // 重置所有拖拽状态，避免遗留状态导致问题
             _capturedMouseButtons.Clear();
+            _panning = false;
+            _dragStart = Vector2.zero;
+            _mousePosition = Vector2.zero;
 
             _cachedUnlockedDefsGroupedByPrerequisites = null;
             _cachedVisibleResearchProjects = null;
@@ -326,6 +328,18 @@ public class MainTabWindow_ResearchTree : MainTabWindow
             return;
         }
 
+        // 关键修复：在最早时机预处理MouseDown
+        // 标记是否需要吸收空白点击，但不立即Use（给节点机会）
+        bool shouldAbsorbMouseDown = false;
+        var evt = Event.current;
+        if (evt.type == EventType.MouseDown && evt.button == 0 && Mouse.IsOver(windowRect))
+        {
+            if (!IsPointInScrollbarArea(evt.mousePosition))
+            {
+                shouldAbsorbMouseDown = true;
+            }
+        }
+
         // 先处理输入（同帧生效）
         handleZoom();
         handleDolly();
@@ -347,6 +361,12 @@ public class MainTabWindow_ResearchTree : MainTabWindow
         {
             Tree.Draw(VisibleRect);
             Queue.DrawLabels(VisibleRect);
+
+            // 如果之前标记需要吸收MouseDown，且节点未处理（事件仍是MouseDown），现在Use它
+            if (shouldAbsorbMouseDown && Event.current.type == EventType.MouseDown)
+            {
+                Event.current.Use();
+            }
         }
         GUI.EndScrollView(false);
         ResetZoomLevel();
@@ -396,38 +416,57 @@ public class MainTabWindow_ResearchTree : MainTabWindow
 
         if (e.type == EventType.Used)
         {
+            Log.Message($"[AbsorbInput] Event already used, type: {e.type}");
             return;
         }
 
         var pointerOverWindow = Mouse.IsOver(windowRect);
         var capturing = _capturedMouseButtons.Count > 0;
 
+        Log.Message($"[AbsorbInput] Event: {e.type}, Button: {e.button}, Pos: {e.mousePosition}, PointerOver: {pointerOverWindow}, Capturing: {capturing}");
+
         if (!pointerOverWindow && !capturing)
         {
+            Log.Message($"[AbsorbInput] Not over window and not capturing, skipping");
             return;
         }
 
         switch (e.type)
         {
             case EventType.MouseDown:
+                // 不要吸收滚动条区域的事件
+                if (IsPointInScrollbarArea(e.mousePosition))
+                {
+                    Log.Message($"[AbsorbInput] In scrollbar area, not absorbing");
+                    return;
+                }
+                Log.Message($"[AbsorbInput] Absorbing MouseDown, capturing button {e.button}");
+                _capturedMouseButtons.Add(e.button);
+                e.Use();
+                break;
             case EventType.ScrollWheel:
             case EventType.ContextClick:
+                Log.Message($"[AbsorbInput] Absorbing {e.type}");
                 e.Use();
                 break;
             case EventType.MouseDrag:
                 if (!capturing || !_capturedMouseButtons.Contains(e.button))
                 {
+                    Log.Message($"[AbsorbInput] Not capturing or button not captured, skipping MouseDrag");
                     return;
                 }
 
+                Log.Message($"[AbsorbInput] Absorbing MouseDrag");
                 e.Use();
                 break;
             case EventType.MouseUp:
                 _capturedMouseButtons.Remove(e.button);
+                Log.Message($"[AbsorbInput] Absorbing MouseUp");
                 e.Use();
                 break;
         }
     }
+
 
     private void DrawGenerationInProgressMessage(Rect canvas)
     {
@@ -533,46 +572,120 @@ public class MainTabWindow_ResearchTree : MainTabWindow
 
         var e = Event.current;
 
-        // 先确认鼠标在窗口内（不是只看 ViewRect）
+        // 如果事件已被使用，不要处理（让GUI控件优先）
+        if (e.type == EventType.Used) return;
+
         bool inWindow = Mouse.IsOver(this.windowRect);
-        bool inView = inWindow && InteractionRect.Contains(e.mousePosition);
 
-        if (e.type == EventType.MouseDown && inWindow)
+        if (e.type == EventType.MouseDown && inWindow && e.button == 0)
         {
-            _capturedMouseButtons.Add(e.button);
-
-            _dragging = inView && e.button == 0; // 只有左键才触发平移
-            _panning = false;
-            _dragStart = _mousePosition = e.mousePosition;
-            // 不 Use()，保留给节点/控件
-            return;
-        }
-
-        if (e.type == EventType.MouseUp && _capturedMouseButtons.Remove(e.button))
-        {
-            if (e.button == 0)
+            // 关键修复：在MouseDown时就检查是否在滚动条上
+            if (IsPointInScrollbarArea(e.mousePosition))
             {
-                _dragging = _panning = false;
-                _dragStart = _mousePosition = Vector2.zero;
+                // 在滚动条上，清空状态，不记录
+                _dragStart = Vector2.zero;
+                return;
             }
 
+            // 只记录起始点，不Use事件
+            // 让研究节点和其他GUI有机会处理MouseDown
+            _dragStart = _mousePosition = e.mousePosition;
             return;
         }
 
-        if (_dragging && e.type == EventType.MouseDrag && _capturedMouseButtons.Contains(e.button))
+        if (e.type == EventType.MouseUp && e.button == 0)
         {
+            // 清理所有拖拽状态
+            if (_panning)
+            {
+                _panning = false;
+                _capturedMouseButtons.Remove(e.button);
+            }
+            _dragStart = _mousePosition = Vector2.zero;
+            return;
+        }
+
+        if (e.type == EventType.MouseDrag && e.button == 0 && _dragStart != Vector2.zero)
+        {
+            // 检查起始点是否在窗口内
+            bool inView = inWindow && InteractionRect.Contains(_dragStart);
+            if (!inView) return;
+
+            // 检查是否超过阈值
             if (!_panning)
             {
-                if ((e.mousePosition - _dragStart).sqrMagnitude < PanThreshold * PanThreshold) return;
+                if ((e.mousePosition - _dragStart).sqrMagnitude < PanThreshold * PanThreshold)
+                    return;
+
+                // 超过阈值，开始平移
                 _panning = true;
+                _capturedMouseButtons.Add(e.button);
             }
 
-            var cur = e.mousePosition;
-            _scrollPosition += _mousePosition - cur;
-            _mousePosition = cur;
+            // 执行平移
+            var delta = e.mousePosition - _mousePosition;
+            _scrollPosition -= delta / ZoomLevel;
             ClampScroll();
-            e.Use(); // 只有真正平移时才吞事件
+            _mousePosition = e.mousePosition;
+
+            // 关键修复：拖拽时Use事件，防止穿透
+            e.Use();
+            return;
         }
+    }
+
+    private bool IsPointInScrollbarArea(Vector2 point)
+    {
+        // Unity滚动条宽度约为16-18像素，但为了安全起见使用更大的区域
+        float scrollbarSize = 20f;
+
+        // 滚动条实际在windowRect的边缘，不是ViewRect的边缘
+        var winRect = windowRect;
+
+        // 调试日志
+        Log.Message($"[ScrollbarCheck] Point: {point}, WindowRect: {winRect}, TreeRect: {TreeRect.width}x{TreeRect.height}");
+
+        // 检查是否可能需要垂直滚动条
+        if (TreeRect.height > _baseViewRect.height)
+        {
+            // 垂直滚动条在窗口右侧边缘附近
+            // 根据实际测试，滚动条可能从x=2516开始
+            float scrollbarLeft = winRect.xMax - 50f;  // 扩大检测范围
+            float scrollbarRight = winRect.xMax + 5; // 留一点余量
+
+            Log.Message($"[ScrollbarCheck] Vertical scrollbar area: x=[{scrollbarLeft}, {scrollbarRight}], y=[{winRect.yMin}, {winRect.yMax}]");
+
+            if (point.x >= scrollbarLeft &&
+                point.x <= scrollbarRight &&
+                point.y >= winRect.yMin &&
+                point.y <= winRect.yMax)
+            {
+                Log.Message($"[ScrollbarCheck] Point IS in vertical scrollbar area!");
+                return true;
+            }
+        }
+
+        // 检查是否可能需要水平滚动条
+        if (TreeRect.width > _baseViewRect.width)
+        {
+            // 水平滚动条在窗口底部边缘
+            float scrollbarTop = winRect.yMax - scrollbarSize;
+            float scrollbarBottom = winRect.yMax + 5; // 留一点余量
+
+            Log.Message($"[ScrollbarCheck] Horizontal scrollbar area: y=[{scrollbarTop}, {scrollbarBottom}], x=[{winRect.xMin}, {winRect.xMax}]");
+
+            if (point.y >= scrollbarTop &&
+                point.y <= scrollbarBottom &&
+                point.x >= winRect.xMin &&
+                point.x <= winRect.xMax)
+            {
+                Log.Message($"[ScrollbarCheck] Point IS in horizontal scrollbar area!");
+                return true;
+            }
+        }
+
+        Log.Message($"[ScrollbarCheck] Point is NOT in scrollbar area");
+        return false;
     }
 
 
@@ -603,7 +716,7 @@ public class MainTabWindow_ResearchTree : MainTabWindow
         right.xMin = Mathf.Min(canvas.xMax, left.xMax + Constants.Margin);
 
         DrawSearchBar(left.ContractedBy(Constants.Margin));
-        Queue.DrawQueue(right.ContractedBy(Constants.Margin), !_dragging);
+        Queue.DrawQueue(right.ContractedBy(Constants.Margin), !_panning);
     }
 
     private void DrawSearchBar(Rect canvas)
