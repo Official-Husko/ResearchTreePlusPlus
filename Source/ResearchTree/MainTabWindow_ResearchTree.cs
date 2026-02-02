@@ -168,6 +168,30 @@ public class MainTabWindow_ResearchTree : MainTabWindow
         }
     }
 
+    /// <summary>
+    /// 根据研究树的尺寸动态计算拖拽速度系数。
+    /// 当树较大（研究项较多）时，增加拖拽灵敏度以保持一致的操作体验。
+    /// </summary>
+    private float DragSpeedMultiplier
+    {
+        get
+        {
+            if (!Tree.Initialized || _baseViewRectInner.width <= 0f || _baseViewRectInner.height <= 0f)
+            {
+                return 1f;
+            }
+
+            // 计算树相对于可视区域的大小比例
+            float widthRatio = TreeRect.width / _baseViewRectInner.width;
+            float heightRatio = TreeRect.height / _baseViewRectInner.height;
+            float sizeRatio = Mathf.Max(widthRatio, heightRatio, 1f);
+
+            // 使用平方根来平滑调整：树很大时不会让拖拽速度过快
+            // 基础速度 1.0，最大速度限制在 3.0 左右
+            return Mathf.Clamp(Mathf.Sqrt(sizeRatio), 1f, 3f);
+        }
+    }
+
     private List<ResearchProjectDef> VisibleResearchProjects
     {
         get
@@ -330,9 +354,10 @@ public class MainTabWindow_ResearchTree : MainTabWindow
 
         // 关键修复：在最早时机预处理MouseDown
         // 标记是否需要吸收空白点击，但不立即Use（给节点机会）
+        // 同时处理左键(0)和右键(1)，防止穿透到地图
         bool shouldAbsorbMouseDown = false;
         var evt = Event.current;
-        if (evt.type == EventType.MouseDown && evt.button == 0 && Mouse.IsOver(windowRect))
+        if (evt.type == EventType.MouseDown && (evt.button == 0 || evt.button == 1) && Mouse.IsOver(windowRect))
         {
             if (!IsPointInScrollbarArea(evt.mousePosition))
             {
@@ -535,8 +560,8 @@ public class MainTabWindow_ResearchTree : MainTabWindow
         // 每帧一次，避免在 Layout/MouseMove 阶段重复加步长
         if (Event.current.type != EventType.Repaint) return;
 
-        // 步长随帧时间与缩放变化：缩得越小（ZoomLevel大），单帧移动更多
-        float step = 600f * Time.unscaledDeltaTime * Mathf.Max(1f, Instance.ZoomLevel);
+        // 步长随帧时间、缩放与树尺寸变化：树越大或缩得越小，单帧移动更多
+        float step = 600f * Time.unscaledDeltaTime * Mathf.Max(1f, Instance.ZoomLevel) * Instance.DragSpeedMultiplier;
 
         if (KeyBindingDefOf.MapDolly_Left.IsDown) _scrollPosition.x -= step;
         if (KeyBindingDefOf.MapDolly_Right.IsDown) _scrollPosition.x += step;
@@ -622,9 +647,9 @@ public class MainTabWindow_ResearchTree : MainTabWindow
                 _capturedMouseButtons.Add(e.button);
             }
 
-            // 执行平移
+            // 执行平移，应用动态拖拽速度系数
             var delta = e.mousePosition - _mousePosition;
-            _scrollPosition -= delta / ZoomLevel;
+            _scrollPosition -= delta * DragSpeedMultiplier / ZoomLevel;
             ClampScroll();
             _mousePosition = e.mousePosition;
 
@@ -650,8 +675,9 @@ public class MainTabWindow_ResearchTree : MainTabWindow
         {
             // 垂直滚动条在窗口右侧边缘附近
             // 根据实际测试，滚动条可能从x=2516开始
-            float scrollbarLeft = winRect.xMax - 50f;  // 扩大检测范围
-            float scrollbarRight = winRect.xMax + 5; // 留一点余量
+            // 扩大右侧检测范围，防止滚动条右侧空白区域误触关闭窗口
+            float scrollbarLeft = winRect.xMax - 50f;  // 扩大左侧检测范围
+            float scrollbarRight = winRect.xMax + 20f; // 扩大右侧检测范围，覆盖窗口边缘空白
 
             Log.Message($"[ScrollbarCheck] Vertical scrollbar area: x=[{scrollbarLeft}, {scrollbarRight}], y=[{winRect.yMin}, {winRect.yMax}]");
 
@@ -669,8 +695,9 @@ public class MainTabWindow_ResearchTree : MainTabWindow
         if (TreeRect.width > _baseViewRect.width)
         {
             // 水平滚动条在窗口底部边缘
+            // 扩大底部检测范围，防止滚动条下方空白区域误触关闭窗口
             float scrollbarTop = winRect.yMax - scrollbarSize;
-            float scrollbarBottom = winRect.yMax + 5; // 留一点余量
+            float scrollbarBottom = winRect.yMax + 20f; // 扩大底部检测范围
 
             Log.Message($"[ScrollbarCheck] Horizontal scrollbar area: y=[{scrollbarTop}, {scrollbarBottom}], x=[{winRect.xMin}, {winRect.xMax}]");
 
