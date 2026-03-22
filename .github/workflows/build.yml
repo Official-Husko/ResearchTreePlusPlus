@@ -12,7 +12,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     permissions:
       contents: read
     steps:
@@ -25,7 +25,7 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Restore
-        run: dotnet restore Source/ResearchTree/FluffyResearchTree.csproj
+        run: dotnet restore Source/ResearchTree/FluffyResearchTree.csproj --locked-mode
 
       - name: Build
         run: dotnet build Source/ResearchTree/FluffyResearchTree.csproj --configuration Release --no-restore
@@ -39,7 +39,7 @@ jobs:
           if-no-files-found: error
 
   release:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     if: startsWith(github.ref, 'refs/tags/')
     needs: build
     permissions:
@@ -52,23 +52,24 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: built-dll
-          path: /tmp/release-dll
+          path: ${{ runner.temp }}/release-dll
 
       - name: Place built DLL into repository
-        run: cp /tmp/release-dll/FluffyResearchTree.dll 1.6/Assemblies/FluffyResearchTree.dll
+        run: Copy-Item -Path $env:RUNNER_TEMP/release-dll/FluffyResearchTree.dll -Destination 1.6/Assemblies/FluffyResearchTree.dll -Force
 
       - name: Package full built repository
         run: |
-          mkdir -p dist
-          archive_name="ResearchTreePlusPlus-${GITHUB_REF_NAME}.zip"
-          zip -r "dist/${archive_name}" . \
-            -x ".git/*" \
-            -x "dist/*" \
-            -x "**/.vs/*" \
-            -x "**/bin/Debug/*" \
-            -x "**/obj/*" \
-            -x "**/*.user"
-          echo "ARCHIVE_PATH=dist/${archive_name}" >> "$GITHUB_ENV"
+          New-Item -ItemType Directory -Path dist -Force | Out-Null
+          $archiveName = "ResearchTreePlusPlus-$env:GITHUB_REF_NAME.zip"
+          $staging = Join-Path $env:RUNNER_TEMP "release-archive"
+          if (Test-Path $staging) { Remove-Item -Path $staging -Recurse -Force }
+          New-Item -ItemType Directory -Path $staging -Force | Out-Null
+          robocopy . $staging /E /NFL /NDL /NJH /NJS /NC /NS /XD .git dist .vs /XF *.user
+          if ($LASTEXITCODE -gt 7) { exit $LASTEXITCODE }
+          Get-ChildItem -Path $staging -Recurse -Directory -Filter obj | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+          Get-ChildItem -Path $staging -Recurse -Directory -Filter Debug | Where-Object { $_.Parent.Name -eq "bin" } | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+          Compress-Archive -Path (Join-Path $staging '*') -DestinationPath (Join-Path 'dist' $archiveName) -Force
+          "ARCHIVE_PATH=dist/$archiveName" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Publish GitHub release asset
         uses: softprops/action-gh-release@v2

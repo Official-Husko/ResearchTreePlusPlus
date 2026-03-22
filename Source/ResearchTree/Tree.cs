@@ -63,6 +63,18 @@ public static class Tree
 
     private static int _availabilityCacheVersion;
 
+    private static int _graphVersion;
+
+    public static int GraphVersion => _graphVersion;
+
+    public static void NotifyGraphChanged()
+    {
+        unchecked
+        {
+            _graphVersion++;
+        }
+    }
+
     private sealed class CollapsedEdge
     {
         private readonly List<DummyNode> _via;
@@ -2257,7 +2269,7 @@ public static class Tree
         Parallel.For(1, Size.x + 1, i =>
         {
             var list = (from n in layer(i)
-                        orderby n.Descendants.Count
+                        orderby n.DescendantsCount
                         select n).ToList();
             for (var j = 0; j < list.Count; j++) list[j].Y = j + 1;
         });

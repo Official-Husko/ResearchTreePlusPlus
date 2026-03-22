@@ -55,20 +55,20 @@ public class Node
     private int _inEdgeVersion;
     private int _outEdgeVersion;
 
-    private List<Node> _descendantsCache;
-    private int _descendantsCacheOutVersion = -1;
+    private int _descendantsCountCache = -1;
+    private int _descendantsCountCacheGraphVersion = -1;
 
-    public List<Node> Descendants
+    public int DescendantsCount
     {
         get
         {
-            if (_descendantsCache == null || _descendantsCacheOutVersion != _outEdgeVersion)
+            if (_descendantsCountCacheGraphVersion != Tree.GraphVersion)
             {
-                _descendantsCache = OutNodes.Concat(OutNodes.SelectMany(n => n.Descendants)).ToList();
-                _descendantsCacheOutVersion = _outEdgeVersion;
+                _descendantsCountCache = OutNodes.Sum(n => 1 + n.DescendantsCount);
+                _descendantsCountCacheGraphVersion = Tree.GraphVersion;
             }
 
-            return _descendantsCache;
+            return _descendantsCountCache;
         }
     }
 
@@ -81,7 +81,8 @@ public class Node
         _outNodesCache = null;
         _edgesCache = null;
         _nodesCache = null;
-        _descendantsCache = null;
+        _descendantsCountCacheGraphVersion = -1;
+        Tree.NotifyGraphChanged();
     }
 
     public bool RemoveOutEdge(Edge<Node, Node> edge)
@@ -93,7 +94,8 @@ public class Node
             _outNodesCache = null;
             _edgesCache = null;
             _nodesCache = null;
-            _descendantsCache = null;
+            _descendantsCountCacheGraphVersion = -1;
+            Tree.NotifyGraphChanged();
         }
 
         return removed;
@@ -122,6 +124,7 @@ public class Node
         _inNodesCache = null;
         _edgesCache = null;
         _nodesCache = null;
+        Tree.NotifyGraphChanged();
     }
 
     public bool RemoveInEdge(Edge<Node, Node> edge)
@@ -133,6 +136,7 @@ public class Node
             _inNodesCache = null;
             _edgesCache = null;
             _nodesCache = null;
+            Tree.NotifyGraphChanged();
         }
 
         return removed;
