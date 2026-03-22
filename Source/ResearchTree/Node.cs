@@ -38,19 +38,153 @@ public class Node
 
     private Vector2 _topLeft = Vector2.zero;
 
-    public List<Node> Descendants => OutNodes.Concat(OutNodes.SelectMany(n => n.Descendants)).ToList();
+    private List<Node> _outNodesCache;
+    private int _outNodesCacheVersion = -1;
+
+    private List<Node> _inNodesCache;
+    private int _inNodesCacheVersion = -1;
+
+    private List<Edge<Node, Node>> _edgesCache;
+    private int _edgesCacheInVersion = -1;
+    private int _edgesCacheOutVersion = -1;
+
+    private List<Node> _nodesCache;
+    private int _nodesCacheInVersion = -1;
+    private int _nodesCacheOutVersion = -1;
+
+    private int _inEdgeVersion;
+    private int _outEdgeVersion;
+
+    private int _descendantsCountCache = -1;
+    private int _descendantsCountCacheGraphVersion = -1;
+
+    public int DescendantsCount
+    {
+        get
+        {
+            if (_descendantsCountCacheGraphVersion != Tree.GraphVersion)
+            {
+                _descendantsCountCache = OutNodes.Sum(n => 1 + n.DescendantsCount);
+                _descendantsCountCacheGraphVersion = Tree.GraphVersion;
+            }
+
+            return _descendantsCountCache;
+        }
+    }
 
     public List<Edge<Node, Node>> OutEdges { get; } = [];
 
-    public List<Node> OutNodes => OutEdges.Select(e => e.Out).ToList();
+    public void AddOutEdge(Edge<Node, Node> edge)
+    {
+        OutEdges.Add(edge);
+        _outEdgeVersion++;
+        _outNodesCache = null;
+        _edgesCache = null;
+        _nodesCache = null;
+        _descendantsCountCacheGraphVersion = -1;
+        Tree.NotifyGraphChanged();
+    }
+
+    public bool RemoveOutEdge(Edge<Node, Node> edge)
+    {
+        var removed = OutEdges.Remove(edge);
+        if (removed)
+        {
+            _outEdgeVersion++;
+            _outNodesCache = null;
+            _edgesCache = null;
+            _nodesCache = null;
+            _descendantsCountCacheGraphVersion = -1;
+            Tree.NotifyGraphChanged();
+        }
+
+        return removed;
+    }
+
+    public List<Node> OutNodes
+    {
+        get
+        {
+            if (_outNodesCache == null || _outNodesCacheVersion != _outEdgeVersion)
+            {
+                _outNodesCache = OutEdges.Select(e => e.Out).ToList();
+                _outNodesCacheVersion = _outEdgeVersion;
+            }
+
+            return _outNodesCache;
+        }
+    }
 
     public List<Edge<Node, Node>> InEdges { get; } = [];
 
-    public List<Node> InNodes => InEdges.Select(e => e.In).ToList();
+    public void AddInEdge(Edge<Node, Node> edge)
+    {
+        InEdges.Add(edge);
+        _inEdgeVersion++;
+        _inNodesCache = null;
+        _edgesCache = null;
+        _nodesCache = null;
+        Tree.NotifyGraphChanged();
+    }
 
-    public List<Edge<Node, Node>> Edges => InEdges.Concat(OutEdges).ToList();
+    public bool RemoveInEdge(Edge<Node, Node> edge)
+    {
+        var removed = InEdges.Remove(edge);
+        if (removed)
+        {
+            _inEdgeVersion++;
+            _inNodesCache = null;
+            _edgesCache = null;
+            _nodesCache = null;
+            Tree.NotifyGraphChanged();
+        }
 
-    public List<Node> Nodes => InNodes.Concat(OutNodes).ToList();
+        return removed;
+    }
+
+    public List<Node> InNodes
+    {
+        get
+        {
+            if (_inNodesCache == null || _inNodesCacheVersion != _inEdgeVersion)
+            {
+                _inNodesCache = InEdges.Select(e => e.In).ToList();
+                _inNodesCacheVersion = _inEdgeVersion;
+            }
+
+            return _inNodesCache;
+        }
+    }
+
+    public List<Edge<Node, Node>> Edges
+    {
+        get
+        {
+            if (_edgesCache == null || _edgesCacheInVersion != _inEdgeVersion || _edgesCacheOutVersion != _outEdgeVersion)
+            {
+                _edgesCache = InEdges.Concat(OutEdges).ToList();
+                _edgesCacheInVersion = _inEdgeVersion;
+                _edgesCacheOutVersion = _outEdgeVersion;
+            }
+
+            return _edgesCache;
+        }
+    }
+
+    public List<Node> Nodes
+    {
+        get
+        {
+            if (_nodesCache == null || _nodesCacheInVersion != _inEdgeVersion || _nodesCacheOutVersion != _outEdgeVersion)
+            {
+                _nodesCache = InNodes.Concat(OutNodes).ToList();
+                _nodesCacheInVersion = _inEdgeVersion;
+                _nodesCacheOutVersion = _outEdgeVersion;
+            }
+
+            return _nodesCache;
+        }
+    }
 
     protected Rect CostIconRect
     {
@@ -179,9 +313,17 @@ public class Node
                 return;
             }
 
+            var previous = (int)_pos.x;
             _pos.x = value;
             _rectsSet = false;
-            Tree.Size.x = Tree.Nodes.Max(n => n.X);
+            if (value > Tree.Size.x)
+            {
+                Tree.Size = new IntVec2(value, Tree.Size.z);
+            }
+            else if (previous == Tree.Size.x && value != previous)
+            {
+                Tree.RecomputeSizeX();
+            }
             Tree.OrderDirty = true;
         }
     }
@@ -201,9 +343,17 @@ public class Node
                 return;
             }
 
+            var previous = (int)_pos.y;
             _pos.y = value;
             _rectsSet = false;
-            Tree.Size.z = Tree.Nodes.Max(n => n.Y);
+            if (value > Tree.Size.z)
+            {
+                Tree.Size = new IntVec2(Tree.Size.x, value);
+            }
+            else if (previous == Tree.Size.z && value != previous)
+            {
+                Tree.RecomputeSizeZ();
+            }
             Tree.OrderDirty = true;
         }
     }
@@ -220,8 +370,17 @@ public class Node
                 return;
             }
 
+            var previous = (int)_pos.y;
             _pos.y = value;
-            Tree.Size.z = Tree.Nodes.Max(n => n.Y) + 1;
+            var valueInt = (int)value;
+            if (valueInt + 1 > Tree.Size.z)
+            {
+                Tree.Size = new IntVec2(Tree.Size.x, valueInt + 1);
+            }
+            else if (previous + 1 == Tree.Size.z && valueInt != previous)
+            {
+                Tree.RecomputeSizeZPlusOne();
+            }
             Tree.OrderDirty = true;
         }
     }

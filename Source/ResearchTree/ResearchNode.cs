@@ -20,6 +20,12 @@ public class ResearchNode : Node
 
     private static readonly Dictionary<ResearchProjectDef, List<ThingDef>> _missingFacilitiesCache = [];
 
+    private static readonly Dictionary<ResearchNode, bool> _frameAvailabilityCache = [];
+
+    private static int _frameAvailabilityCacheFrame = -1;
+
+    private static int _frameAvailabilityCacheVersion = -1;
+
     private bool availableCache;
 
     private readonly int cacheOrder;
@@ -82,6 +88,9 @@ public class ResearchNode : Node
     {
         _buildingPresentCache.Clear();
         _missingFacilitiesCache.Clear();
+        _frameAvailabilityCache.Clear();
+        _frameAvailabilityCacheFrame = -1;
+        _frameAvailabilityCacheVersion = -1;
     }
 
     public static implicit operator ResearchNode(ResearchProjectDef def)
@@ -123,6 +132,34 @@ public class ResearchNode : Node
         return value;
     }
 
+    private static string JoinLabelCaps(IEnumerable<ThingDef> defs)
+    {
+        if (defs == null)
+        {
+            return string.Empty;
+        }
+
+        var sb = new StringBuilder();
+        var first = true;
+        foreach (var def in defs)
+        {
+            if (def == null)
+            {
+                continue;
+            }
+
+            if (!first)
+            {
+                sb.Append(", ");
+            }
+
+            sb.Append(def.LabelCap);
+            first = false;
+        }
+
+        return sb.ToString();
+    }
+
     private void buildTips()
     {
         if (Queue._draggedNode != null)
@@ -135,8 +172,8 @@ public class ResearchNode : Node
         if (missingFacilities?.Any() == true)
         {
             researchTooltipString.AppendLine();
-            researchTooltipString.AppendLine("Fluffy.ResearchTree.MissingFacilities".Translate(string.Join(", ",
-                missingFacilities.Select(td => td.LabelCap).ToArray())));
+            researchTooltipString.AppendLine("Fluffy.ResearchTree.MissingFacilities"
+                .Translate(JoinLabelCaps(missingFacilities)));
         }
 
         if (!Research.TechprintRequirementMet)
@@ -156,8 +193,8 @@ public class ResearchNode : Node
         if (!Research.AnalyzedThingsRequirementsMet)
         {
             researchTooltipString.AppendLine();
-            researchTooltipString.AppendLine("Fluffy.ResearchTree.MissingStudiedThings".Translate(string.Join(", ",
-                Research.requiredAnalyzed.Select(def => def.LabelCap))));
+            researchTooltipString.AppendLine("Fluffy.ResearchTree.MissingStudiedThings"
+                .Translate(JoinLabelCaps(Research.requiredAnalyzed)));
         }
 
         if (!Research.PlayerMechanitorRequirementMet)
@@ -795,8 +832,29 @@ public class ResearchNode : Node
                 return false;
             }
 
-            return FluffyResearchTreeMod.instance.Settings.LoadType == Constants.LoadTypeDoNotGenerateResearchTree
-                   || DebugSettings.godMode || getCacheValue();
+            if (FluffyResearchTreeMod.instance.Settings.LoadType == Constants.LoadTypeDoNotGenerateResearchTree
+                || DebugSettings.godMode)
+            {
+                return true;
+            }
+
+            var currentFrame = Time.frameCount;
+            var currentVersion = Tree.AvailabilityCacheVersion;
+            if (_frameAvailabilityCacheFrame != currentFrame || _frameAvailabilityCacheVersion != currentVersion)
+            {
+                _frameAvailabilityCache.Clear();
+                _frameAvailabilityCacheFrame = currentFrame;
+                _frameAvailabilityCacheVersion = currentVersion;
+            }
+
+            if (_frameAvailabilityCache.TryGetValue(this, out var cached))
+            {
+                return cached;
+            }
+
+            var result = getCacheValue();
+            _frameAvailabilityCache[this] = result;
+            return result;
         }
     }
 

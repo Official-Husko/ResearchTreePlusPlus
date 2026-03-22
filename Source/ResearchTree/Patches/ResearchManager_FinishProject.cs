@@ -25,6 +25,7 @@ public class ResearchManager_FinishProject
             return;
         }
 
+        Tree.ResetNodeAvailabilityCache(proj);
         Queue.TryStartNext(proj);
     }
 }

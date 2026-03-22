@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "dependencies": {
+    ".NETFramework,Version=v4.8": {
+      "Krafs.Rimworld.Ref": {
+        "type": "Direct",
+        "requested": "[*, )",
+        "resolved": "1.6.4633",
+        "contentHash": "wbUZCLBFHnNJ9IT4ighta1wrsBI9i/gRrfixPNfsMLlPvd/lksz+yv8H3Os7EIpT3O3wOkXgN3LGt8UHncWpzQ=="
+      },
+      "Lib.Harmony": {
+        "type": "Direct",
+        "requested": "[*, )",
+        "resolved": "2.4.2",
+        "contentHash": "D2X9ojVjqbqdqWVK3VQETrEb56yVoXxtEp6tP5UvW0PP+bA4uJiswqOxF8GhH02ECwyevUa9vwhwdLzyXfksbw=="
+      },
+      "Microsoft.NETFramework.ReferenceAssemblies": {
+        "type": "Direct",
+        "requested": "[1.0.3, )",
+        "resolved": "1.0.3",
+        "contentHash": "vUc9Npcs14QsyOD01tnv/m8sQUnGTGOw1BCmKcv77LBJY7OxhJ+zJF7UD/sCL3lYNFuqmQEVlkfS4Quif6FyYg==",
+        "dependencies": {
+          "Microsoft.NETFramework.ReferenceAssemblies.net48": "1.0.3"
+        }
+      },
+      "Mlie_Rimworld_VersionFromManifest": {
+        "type": "Direct",
+        "requested": "[*, )",
+        "resolved": "2022.10.8.223337",
+        "contentHash": "hXvJIkb4d86TiTyIaLl3UJ7JYIBZMY/UDPPqKmnuRn8BJmdKdIOUl+Pv7TmYG0hnhkF2CguiGKUPSF9BCuoAXg==",
+        "dependencies": {
+          "Krafs.Rimworld.Ref": "1.4.3510-beta"
+        }
+      },
+      "Microsoft.NETFramework.ReferenceAssemblies.net48": {
+        "type": "Transitive",
+        "resolved": "1.0.3",
+        "contentHash": "zMk4D+9zyiEWByyQ7oPImPN/Jhpj166Ky0Nlla4eXlNL8hI/BtSJsgR8Inldd4NNpIAH3oh8yym0W2DrhXdSLQ=="
+      }
+    }
+  }
+}

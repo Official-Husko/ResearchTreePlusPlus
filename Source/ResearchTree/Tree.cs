@@ -61,6 +61,20 @@ public static class Tree
 
     private static List<CollapsedEdge> _collapsedEdges;
 
+    private static int _availabilityCacheVersion;
+
+    private static int _graphVersion;
+
+    public static int GraphVersion => _graphVersion;
+
+    public static void NotifyGraphChanged()
+    {
+        unchecked
+        {
+            _graphVersion++;
+        }
+    }
+
     private sealed class CollapsedEdge
     {
         private readonly List<DummyNode> _via;
@@ -262,19 +276,39 @@ public static class Tree
         {
             get
             {
+                var currentFrame = Time.frameCount;
+                var currentVersion = _availabilityCacheVersion;
+                if (_cachedDrawOrderFrame == currentFrame && _cachedDrawOrderVersion == currentVersion)
+                {
+                    return _cachedDrawOrder;
+                }
+
                 if (End?.Highlighted == true)
                 {
-                    return 3;
+                    _cachedDrawOrder = 3;
+                    _cachedDrawOrderFrame = currentFrame;
+                    _cachedDrawOrderVersion = currentVersion;
+                    return _cachedDrawOrder;
                 }
 
                 if (End?.Completed == true)
                 {
-                    return 2;
+                    _cachedDrawOrder = 2;
+                    _cachedDrawOrderFrame = currentFrame;
+                    _cachedDrawOrderVersion = currentVersion;
+                    return _cachedDrawOrder;
                 }
 
-                return End?.Available == true ? 1 : 0;
+                _cachedDrawOrder = End?.Available == true ? 1 : 0;
+                _cachedDrawOrderFrame = currentFrame;
+                _cachedDrawOrderVersion = currentVersion;
+                return _cachedDrawOrder;
             }
         }
+
+        private int _cachedDrawOrder = -1;
+        private int _cachedDrawOrderFrame = -1;
+        private int _cachedDrawOrderVersion = -1;
 
         public bool ShouldDraw(Rect visibleRect)
         {
@@ -675,6 +709,7 @@ public static class Tree
         OrderDirty = false;
         FirstLoadDone = false;
         _collapsedEdges = null;
+        _availabilityCacheVersion++;
         MainTabWindow_ResearchTree.InvalidateTreeRectCache();
         if (MainTabWindow_ResearchTree.Instance != null)
         {
@@ -1328,8 +1363,8 @@ public static class Tree
         foreach (var item3 in new List<Edge<Node, Node>>(Edges.Where(e => e.Span > 1)))
         {
             Edges.Remove(item3);
-            item3.In.OutEdges.Remove(item3);
-            item3.Out.InEdges.Remove(item3);
+            item3.In.RemoveOutEdge(item3);
+            item3.Out.RemoveInEdge(item3);
             var node = item3.In;
             var num = (item3.Out.Yf - item3.In.Yf) / item3.Span;
             for (var i = item3.In.X + 1; i < item3.Out.X; i++)
@@ -1340,16 +1375,16 @@ public static class Tree
                     Yf = item3.In.Yf + (num * (i - item3.In.X))
                 };
                 var item = new Edge<Node, Node>(node, dummyNode);
-                node.OutEdges.Add(item);
-                dummyNode.InEdges.Add(item);
+                node.AddOutEdge(item);
+                dummyNode.AddInEdge(item);
                 _nodes.Add(dummyNode);
                 Edges.Add(item);
                 node = dummyNode;
             }
 
             var item2 = new Edge<Node, Node>(node, item3.Out);
-            node.OutEdges.Add(item2);
-            item3.Out.InEdges.Add(item2);
+            node.AddOutEdge(item2);
+            item3.Out.AddInEdge(item2);
             Edges.Add(item2);
         }
     }
@@ -1417,8 +1452,8 @@ public static class Tree
 
                 var item = new Edge<Node, Node>(researchNode, item2);
                 Edges.Add(item);
-                item2.InEdges.Add(item);
-                researchNode.OutEdges.Add(item);
+                item2.AddInEdge(item);
+                researchNode.AddOutEdge(item);
             }
         }
     }
@@ -1691,12 +1726,91 @@ public static class Tree
 
     public static void ResetNodeAvailabilityCache()
     {
+        _availabilityCacheVersion++;
         ResearchNode.ClearStaticCaches();
 
         foreach (var node in Nodes.OfType<ResearchNode>())
         {
             node.ForceRefreshCaches();
         }
+    }
+
+    public static void ResetNodeAvailabilityCache(ResearchProjectDef changedResearch)
+    {
+        if (changedResearch == null)
+        {
+            ResetNodeAvailabilityCache();
+            return;
+        }
+
+        _availabilityCacheVersion++;
+        ResearchNode.ClearStaticCaches();
+
+        if (ResearchToNode(changedResearch) is not Node changedNode)
+        {
+            return;
+        }
+
+        var stack = new Stack<Node>();
+        var visited = new HashSet<Node>();
+        stack.Push(changedNode);
+
+        while (stack.Count > 0)
+        {
+            var node = stack.Pop();
+            if (!visited.Add(node))
+            {
+                continue;
+            }
+
+            if (node is ResearchNode researchNode)
+            {
+                researchNode.ForceRefreshCaches();
+            }
+
+            foreach (var outEdge in node.OutEdges)
+            {
+                if (outEdge?.Out != null)
+                {
+                    stack.Push(outEdge.Out);
+                }
+            }
+        }
+    }
+
+    public static int AvailabilityCacheVersion => _availabilityCacheVersion;
+
+    public static void RecomputeSizeX()
+    {
+        if (_nodes.NullOrEmpty())
+        {
+            Size = new IntVec2(0, Size.z);
+            return;
+        }
+
+        Size = new IntVec2(_nodes.Max(n => n.X), Size.z);
+    }
+
+    public static void RecomputeSizeZ()
+    {
+        if (_nodes.NullOrEmpty())
+        {
+            Size = new IntVec2(Size.x, 0);
+            return;
+        }
+
+        Size = new IntVec2(Size.x, _nodes.Max(n => n.Y));
+    }
+
+    public static void RecomputeSizeZPlusOne()
+    {
+        if (_nodes.NullOrEmpty())
+        {
+            Size = new IntVec2(Size.x, 0);
+            return;
+        }
+
+        Size = new IntVec2(Size.x, _nodes.Max(n => n.Y) + 1);
     }
 
     public static void Draw(Rect visibleRect)
@@ -2155,7 +2269,7 @@ public static class Tree
         Parallel.For(1, Size.x + 1, i =>
         {
             var list = (from n in layer(i)
-                        orderby n.Descendants.Count
+                        orderby n.DescendantsCount
                         select n).ToList();
             for (var j = 0; j < list.Count; j++) list[j].Y = j + 1;
         });
