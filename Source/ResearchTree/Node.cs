@@ -316,7 +316,7 @@ public class Node
             {
                 Tree.Size = new IntVec2(value, Tree.Size.z);
             }
-            else if (previous == Tree.Size.x && value < previous)
+            else if (previous == Tree.Size.x && value != previous)
             {
                 Tree.RecomputeSizeX();
             }
@@ -346,7 +346,7 @@ public class Node
             {
                 Tree.Size = new IntVec2(Tree.Size.x, value);
             }
-            else if (previous == Tree.Size.z && value < previous)
+            else if (previous == Tree.Size.z && value != previous)
             {
                 Tree.RecomputeSizeZ();
             }
@@ -373,7 +373,7 @@ public class Node
             {
                 Tree.Size = new IntVec2(Tree.Size.x, valueInt + 1);
             }
-            else if (previous + 1 == Tree.Size.z && valueInt < previous)
+            else if (previous + 1 == Tree.Size.z && valueInt != previous)
             {
                 Tree.RecomputeSizeZPlusOne();
             }
