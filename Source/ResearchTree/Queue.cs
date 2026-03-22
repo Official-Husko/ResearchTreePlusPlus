@@ -343,7 +343,7 @@ public class Queue : WorldComponent
             {
                 var color = Assets.ColorCompleted[item.Research.techLevel];
                 var background = num > 1 ? Assets.ColorUnavailable[item.Research.techLevel] : color;
-                drawLabel(rect, color, background, num.ToString());
+                drawLabel(rect, color, background, num.ToStringCached());
             }
 
             num++;
@@ -371,7 +371,7 @@ public class Queue : WorldComponent
         drawLabel(
             new Rect(currentStart, 0f, Constants.SmallQueueLabelSize, Constants.SmallQueueLabelSize)
                 .CenteredOnYIn(rect), Color.white,
-            Color.grey, NumQueued.ToString());
+            Color.grey, NumQueued.ToStringCached());
     }
 
     public static void DrawLabelForVanillaWindow(Rect rect, ResearchProjectDef projectToStart)
