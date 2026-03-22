@@ -55,7 +55,22 @@ public class Node
     private int _inEdgeVersion;
     private int _outEdgeVersion;
 
-    public List<Node> Descendants => OutNodes.Concat(OutNodes.SelectMany(n => n.Descendants)).ToList();
+    private List<Node> _descendantsCache;
+    private int _descendantsCacheOutVersion = -1;
+
+    public List<Node> Descendants
+    {
+        get
+        {
+            if (_descendantsCache == null || _descendantsCacheOutVersion != _outEdgeVersion)
+            {
+                _descendantsCache = OutNodes.Concat(OutNodes.SelectMany(n => n.Descendants)).ToList();
+                _descendantsCacheOutVersion = _outEdgeVersion;
+            }
+
+            return _descendantsCache;
+        }
+    }
 
     public List<Edge<Node, Node>> OutEdges { get; } = [];
 
@@ -66,6 +81,7 @@ public class Node
         _outNodesCache = null;
         _edgesCache = null;
         _nodesCache = null;
+        _descendantsCache = null;
     }
 
     public bool RemoveOutEdge(Edge<Node, Node> edge)
@@ -77,6 +93,7 @@ public class Node
             _outNodesCache = null;
             _edgesCache = null;
             _nodesCache = null;
+            _descendantsCache = null;
         }
 
         return removed;
@@ -352,13 +369,13 @@ public class Node
             var previous = (int)_pos.y;
             _pos.y = value;
             var valueInt = (int)value;
-            if (valueInt > Tree.Size.z)
+            if (valueInt + 1 > Tree.Size.z)
             {
-                Tree.Size = new IntVec2(Tree.Size.x, valueInt);
+                Tree.Size = new IntVec2(Tree.Size.x, valueInt + 1);
             }
-            else if (previous == Tree.Size.z && valueInt < previous)
+            else if (previous + 1 == Tree.Size.z && valueInt < previous)
             {
-                Tree.RecomputeSizeZ();
+                Tree.RecomputeSizeZPlusOne();
             }
             Tree.OrderDirty = true;
         }

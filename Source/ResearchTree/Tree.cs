@@ -1790,6 +1790,17 @@ public static class Tree
         Size = new IntVec2(Size.x, _nodes.Max(n => n.Y));
     }
 
+    public static void RecomputeSizeZPlusOne()
+    {
+        if (_nodes.NullOrEmpty())
+        {
+            Size = new IntVec2(Size.x, 0);
+            return;
+        }
+
+        Size = new IntVec2(Size.x, _nodes.Max(n => n.Y) + 1);
+    }
+
     public static void Draw(Rect visibleRect)
     {
         Stopwatch drawTimer = null;
