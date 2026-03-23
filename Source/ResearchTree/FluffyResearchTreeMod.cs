@@ -28,7 +28,7 @@ internal class FluffyResearchTreeMod : Mod
     public FluffyResearchTreeMod(ModContentPack content) : base(content)
     {
         instance = this;
-        new Harmony("ResearchTreePlusPlus").PatchAll(Assembly.GetExecutingAssembly());
+        new Harmony("officialhusko.researchtreeplusplus").PatchAll(Assembly.GetExecutingAssembly());
         Settings = GetSettings<FluffyResearchTreeSettings>();
         currentVersion = VersionFromManifest.GetVersionFromModMetaData(content.ModMetaData);
     }
