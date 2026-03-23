@@ -1,4 +1,4 @@
-# [Research Tree (Continued)](https://steamcommunity.com/sharedfiles/filedetails/?id=3030499331)
+# [ResearchTreePlusPlus](https://steamcommunity.com/sharedfiles/filedetails/?id=3030499331)
 
 ![Image](https://img.litet.net/logos/Info.png)
 

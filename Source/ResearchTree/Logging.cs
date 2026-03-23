@@ -57,6 +57,6 @@ public static class Logging
 
     private static string format(string message)
     {
-        return $"[ResearchTree]: {message}";
+        return $"[ResearchTreePlusPlus]: {message}";
     }
 }

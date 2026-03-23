@@ -45,7 +45,7 @@ public static class SemiRandomResearchProgressionFork_ButtonText
                     !Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.LeftControl):
                 case false when
                     Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.LeftControl):
-                    researchTab = Assets.MainButtonDefOf.FluffyResearchTree;
+                    researchTab = Assets.MainButtonDefOf.ResearchTreePlusPlus;
                     break;
             }
         }

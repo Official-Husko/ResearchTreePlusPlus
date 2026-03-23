@@ -28,7 +28,7 @@ internal class FluffyResearchTreeMod : Mod
     public FluffyResearchTreeMod(ModContentPack content) : base(content)
     {
         instance = this;
-        new Harmony("Fluffy.ResearchTree").PatchAll(Assembly.GetExecutingAssembly());
+        new Harmony("ResearchTreePlusPlus").PatchAll(Assembly.GetExecutingAssembly());
         Settings = GetSettings<FluffyResearchTreeSettings>();
         currentVersion = VersionFromManifest.GetVersionFromModMetaData(content.ModMetaData);
     }
@@ -40,7 +40,7 @@ internal class FluffyResearchTreeMod : Mod
 
     public override string SettingsCategory()
     {
-        return "Research Tree";
+        return "ResearchTreePlusPlus";
     }
 
     /// <summary>

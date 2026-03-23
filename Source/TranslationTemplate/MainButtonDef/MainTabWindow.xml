@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <LanguageData>
   <!-- EN: research -->
-  <FluffyResearchTree.label>research</FluffyResearchTree.label>
+  <ResearchTreePlusPlus.label>research</ResearchTreePlusPlus.label>
   <!-- EN: Examine and decide on research projects.\n\nShift+click to open the original tree. -->
-  <FluffyResearchTree.description>Examine and decide on research projects.
+  <ResearchTreePlusPlus.description>Examine and decide on research projects.
 
-Shift+click to open the original tree.</FluffyResearchTree.description>
+Shift+click to open the original tree.</ResearchTreePlusPlus.description>
 </LanguageData>
