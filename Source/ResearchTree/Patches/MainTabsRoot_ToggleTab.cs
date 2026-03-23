@@ -46,7 +46,7 @@ public class MainTabsRoot_ToggleTab
                 !Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.LeftControl):
             case false when
                 Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.LeftControl):
-                newTab = Assets.MainButtonDefOf.FluffyResearchTree;
+                newTab = Assets.MainButtonDefOf.ResearchTreePlusPlus;
                 break;
         }
     }

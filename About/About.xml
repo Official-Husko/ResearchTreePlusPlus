@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ModMetaData>
-    <name>Research Tree (Continued)</name>
-    <packageId>Mlie.researchtree</packageId>
+    <name>ResearchTreePlusPlus</name>
+    <packageId>officialhusko.researchtreeplusplus</packageId>
     <author>Fluffy,Mlie,Baiyin</author>
     <supportedVersions>
         <li>1.6</li>

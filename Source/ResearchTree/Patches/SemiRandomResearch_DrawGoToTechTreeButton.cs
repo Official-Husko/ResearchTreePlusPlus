@@ -52,7 +52,7 @@ public static class SemiRandomResearch_DrawGoToTechTreeButton
                     !Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.LeftControl):
                 case false when
                     Input.GetKey(KeyCode.LeftShift) && !Input.GetKey(KeyCode.LeftControl):
-                    researchTab = Assets.MainButtonDefOf.FluffyResearchTree;
+                    researchTab = Assets.MainButtonDefOf.ResearchTreePlusPlus;
                     break;
             }
         }

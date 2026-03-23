@@ -571,6 +571,6 @@ public static class Assets
     [DefOf]
     public static class MainButtonDefOf
     {
-        public static MainButtonDef FluffyResearchTree;
+        public static MainButtonDef ResearchTreePlusPlus;
     }
 }
