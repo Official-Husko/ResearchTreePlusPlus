@@ -39,6 +39,9 @@ jobs:
             !.git/**
             !.vs/**
             !dist/**
+            !**/obj/**
+            !**/bin/Debug/**
+            !**/*.user
           if-no-files-found: error
           retention-days: 1
 
