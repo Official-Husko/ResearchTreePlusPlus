@@ -30,6 +30,18 @@ jobs:
       - name: Build
         run: dotnet build Source/ResearchTree/FluffyResearchTree.csproj --configuration Release --no-restore
 
+      - name: Upload full source with build files
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-source-with-build-files
+          path: |
+            .
+            !.git/**
+            !.vs/**
+            !dist/**
+          if-no-files-found: error
+          retention-days: 1
+
       - name: Upload built DLL for release job
         uses: actions/upload-artifact@v4
         with:
