@@ -68,6 +68,8 @@ jobs:
           if ($LASTEXITCODE -gt 7) { exit $LASTEXITCODE }
           Get-ChildItem -Path $staging -Recurse -Directory -Filter obj | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
           Get-ChildItem -Path $staging -Recurse -Directory -Filter Debug | Where-Object { $_.Parent.Name -eq "bin" } | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+          if (!(Test-Path (Join-Path $staging 'Source'))) { throw "Release package must include full project source." }
+          if (!(Test-Path (Join-Path $staging '1.6/Assemblies/FluffyResearchTree.dll'))) { throw "Release package is missing 1.6/Assemblies/FluffyResearchTree.dll." }
           Compress-Archive -Path (Join-Path $staging '*') -DestinationPath (Join-Path 'dist' $archiveName) -Force
           "ARCHIVE_PATH=dist/$archiveName" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
